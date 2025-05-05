@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>red star AI</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 顶部标题栏 */
+        .header {
+            background: var(--header-bg);
+            color: var(--text-color);
+            text-align: center;
+            font-size: 32px;
+            padding: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 主容器 */
+        .container {
+            display: flex;
+            height: calc(100vh - 100px);
+        }
+
+        /* 左侧工具栏 */
+        .sidebar {
+            width: 80px;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-button {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            font-size: 22px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .sidebar-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 右侧聊天窗口 */
+        .chat-window {
+            flex: 1;
+            background: var(--chat-bg);
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            background-color: var(--avatar-bg);
+            color: var(--text-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 22px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-bubble {
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+            background-color: var(--bubble-bg);
+            color: var(--text-color);
+            font-size: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message {
+            align-items: flex-end;
+        }
+
+        .user-message .avatar {
+            margin-left: 10px;
+        }
+
+        .bot-message .avatar {
+            margin-right: 10px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+
+        .action-button {
+            padding: 5px 10px;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 底部输入框 */
+        .chat-input {
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            background: var(--input-bg);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-field {
+            width: 80%;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-right: 10px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            background-color: var(--button-bg);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .send-button img {
+            width: 30px;
+            height: 30px;
+            vertical-align: middle;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            background: var(--status-bar-bg);
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-select {
+            padding: 5px 10px;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-select:hover {
+            background-color: var(--hover-bg);
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">KIMI CHAT</div>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-button">
+                <img src="https://via.placeholder.com/30/FFFFFF/000000?text=H" alt="Home">
+            </div>
+            <div class="sidebar-button">
+                <img src="https://via.placeholder.com/30/FFFFFF/000000?text=+" alt="project root">
+            </div>
+            <div class="sidebar-button">
+                <img src="https://via.placeholder.com/30/FFFFFF/000000?text=📄" alt="discripion">
+            </div>
+            <div class="sidebar-button">
+                <img src="https://via.placeholder.com/30/FFFFFF/000000?text=⚙️" alt="Settings">
+            </div>
+        </div>
+        <div class="chat-window">
+            <div class="message bot-message">
+                <div class="avatar">
+                    <img src="https://via.placeholder.com/50/007bff/FFFFFF?text=K" alt="Bot Avatar">
+                </div>
+                <div class="message-bubble">Hi! How can I help you today?</div>
+                <div class="actions">
+                    <button class="action-button" onclick="copyText('Hi! How can I help you today?')">复制</button>
+                    <button class="action-button" onclick="retryMessage('Hi! How can I help you today?')">再试一次</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="chat-input">
+        <input type="text" class="input-field" placeholder="输入你的消息...">
+        <button class="send-button">
+            <img src="https://via.placeholder.com/30/007bff/FFFFFF?text=SEND" alt="Send">
+        </button>
+    </div>
+    <div class="status-bar">
+        <div class="style-form">
+            <select class="status-select" id="style">
+                <option value="modern-minimalist">现代简约风格</option>
+                <option value="retro">复古风格</option>
+                <option value="futuristic">未来主义风格</option>
+                <option value="cyberpunk">赛博朋克风格</option>
+                <option value="neon">霓虹风格</option>
+                <option value="pastel">马卡龙风格</option>
+                <option value="dark">暗黑风格</option>
+                <option value="light">明亮风格</option>
+                <option value="retro-futuristic">复古未来风格</option>
+                <option value="nature">自然风格</option>
+            </select>
+        </div>
+        <div class="theme-form">
+            <select class="status-select" id="theme">
+                <option value="default">默认主题</option>
+                <option value="light">浅色主题</option>
+                <option value="dark">深色主题</option>
+                <option value="purple">紫色主题</option>
+                <option value="blue">蓝色主题</option>
+                <option value="green">绿色主题</option>
+                <option value="yellow">黄色主题</option>
+                <option value="red">红色主题</option>
+                <option value="orange">橙色主题</option>
+                <option value="pink">粉色主题</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        let previousMessage = '';
+
+        function sendMessage() {
+            const input = document.querySelector('.input-field');
+            const chatWindow = document.querySelector('.chat-window');
+            const messageText = input.value.trim();
+
+            if (messageText === '') return;
+
+            previousMessage = messageText;
+
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.innerHTML = `
+                <div class="avatar">
+                    <img src="https://via.placeholder.com/50/444444/FFFFFF?text=U" alt="User Avatar">
+                </div>
+                <div class="message-bubble">${messageText}</div>
+                <div class="actions">
+                    <button class="action-button" onclick="copyText('${messageText}')">复制</button>
+                    <button class="action-button" onclick="retryMessage('${messageText}')">再试一次</button>
+                </div>
+            `;
+            chatWindow.appendChild(userMessage);
+
+            setTimeout(() => {
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot-message';
+                botMessage.innerHTML = `
+                    <div class="avatar">
+                        <img src="https://via.placeholder.com/50/007bff/FFFFFF?text=K" alt="Bot Avatar">
+                    </div>
+                    <div class="message-bubble">You said: "${messageText}"</div>
+                    <div class="actions">
+                        <button class="action-button" onclick="copyText('${messageText}')">复制</button>
+                        <button class="action-button" onclick="retryMessage('${messageText}')">再试一次</button>
+                    </div>
+                `;
+                chatWindow.appendChild(botMessage);
+
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, 1000);
+
+            input.value = '';
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+        }
+
+        function retryMessage(text) {
+            const input = document.querySelector('.input-field');
+            input.value = text;
+            sendMessage();
+        }
+
+        document.querySelector('.input-field').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // 风格切换
+        document.querySelector('#style').addEventListener('change', (e) => {
+            const style = e.target.value;
+            const styles = {
+                'modern-minimalist': {
+                    '--background': '#f0f0f0',
+                    '--header-bg': '#ffffff',
+                    '--sidebar-bg': '#ffffff',
+                    '--chat-bg': '#ffffff',
+                    '--button-bg': '#007bff',
+                    '--text-color': '#333333',
+                    '--border-color': '#cccccc',
+                    '--input-bg': '#ffffff',
+                    '--avatar-bg': '#444444'
+                },
+                'retro': {
+                    '--background': '#8b4513',
+                    '--header-bg': '#cd853f',
+                    '--sidebar-bg': '#cd853f',
+                    '--chat-bg': '#cd853f',
+                    '--button-bg': '#8b4513',
+                    '--text-color': '#ffefd5',
+                    '--border-color': '#a0522d',
+                    '--input-bg': '#cd853f',
+                    '--avatar-bg': '#a0522d'
+                },
+                'futuristic': {
+                    '--background': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--header-bg': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--sidebar-bg': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--chat-bg': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--button-bg': '#00ff00',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#00ff00',
+                    '--input-bg': '#1a1a1a',
+                    '--avatar-bg': '#666666'
+                },
+                'cyberpunk': {
+                    '--background': 'linear-gradient(135deg, #ff0000, #00ff00)',
+                    '--header-bg': 'linear-gradient(135deg, #ff00ff, #00ff00)',
+                    '--sidebar-bg': 'linear-gradient(135deg, #ff00ff, #00ff00)',
+                    '--chat-bg': 'linear-gradient(135deg, #ff00ff, #00ff00)',
+                    '--button-bg': '#ffffff',
+                    '--text-color': '#222222',
+                    '--border-color': '#ffffff',
+                    '--input-bg': '#1a1a1a',
+                    '--avatar-bg': '#808080'
+                },
+                'neon': {
+                    '--background': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--header-bg': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--sidebar-bg': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--chat-bg': 'linear-gradient(135deg, #000000, #1a1a1a)',
+                    '--button-bg': '#00ffff',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#00ffff',
+                    '--input-bg': '#1a1a1a',
+                    '--avatar-bg': '#666666'
+                },
+                'pastel': {
+                    '--background': '#ffe4e1',
+                    '--header-bg': '#ffe4e1',
+                    '--sidebar-bg': '#ffe4e1',
+                    '--chat-bg': '#ffe4e1',
+                    '--button-bg': '#ff69b4',
+                    '--text-color': '#333333',
+                    '--border-color': '#cccccc',
+                    '--input-bg': '#ffffff',
+                    '--avatar-bg': '#ffe4b5'
+                },
+                'dark': {
+                    '--background': '#1a1a1a',
+                    '--header-bg': '#2c2c2c',
+                    '--sidebar-bg': '#2c2c2c',
+                    '--chat-bg': '#2c2c2c',
+                    '--button-bg': '#007bff',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#444444',
+                    '--input-bg': '#444444',
+                    '--avatar-bg': '#666666'
+                },
+                'light': {
+                    '--background': '#ffffff',
+                    '--header-bg': '#ffffff',
+                    '--sidebar-bg': '#ffffff',
+                    '--chat-bg': '#ffffff',
+                    '--button-bg': '#007bff',
+                    '--text-color': '#000000',
+                    '--border-color': '#cccccc',
+                    '--input-bg': '#ffffff',
+                    '--avatar-bg': '#e0e0e0'
+                },
+                'retro-futuristic': {
+                    '--background': '#cd853f',
+                    '--header-bg': '#cd853f',
+                    '--sidebar-bg': '#cd853f',
+                    '--chat-bg': '#cd853f',
+                    '--button-bg': '#00ff00',
+                    '--text-color': '#ffefd5',
+                    '--border-color': '#a0522d',
+                    '--input-bg': '#cd853f',
+                    '--avatar-bg': '#a0522d'
+                },
+                'nature': {
+                    '--background': '#90ee90',
+                    '--header-bg': '#90ee90',
+                    '--sidebar-bg': '#90ee90',
+                    '--chat-bg': '#90ee90',
+                    '--button-bg': '#006400',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#006400',
+                    '--input-bg': '#ffffff',
+                    '--avatar-bg': '#66cdaa'
+                }
+            };
+
+            Object.assign(document.documentElement.style, styles[style]);
+        });
+
+        // 主题切换
+        document.querySelector('#theme').addEventListener('change', (e) => {
+            const theme = e.target.value;
+            const themes = {
+                'default': {
+                    '--background': '#1a1a1a',
+                    '--header-bg': '#2c2c2c',
+                    '--sidebar-bg': '#2c2c2c',
+                    '--chat-bg': '#2c2c2c',
+                    '--button-bg': '#007bff',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#444444',
+                    '--input-bg': '#444444',
+                    '--avatar-bg': '#007bff'
+                },
+                'light': {
+                    '--background': '#ffffff',
+                    '--header-bg': '#ffffff',
+                    '--sidebar-bg': '#ffffff',
+                    '--chat-bg': '#ffffff',
+                    '--button-bg': '#007bff',
+                    '--text-color': '#000000',
+                    '--border-color': '#cccccc',
+                    '--input-bg': '#ffffff',
+                    '--avatar-bg': '#e0e0e0'
+                },
+                'dark': {
+                    '--background': '#1a1a1a',
+                    '--header-bg': '#2c2c2c',
+                    '--sidebar-bg': '#2c2c2c',
+                    '--chat-bg': '#2c2c2c',
+                    '--button-bg': '#007bff',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#444444',
+                    '--input-bg': '#444444',
+                    '--avatar-bg': '#666666'
+                },
+                'purple': {
+                    '--background': '#6a0dad',
+                    '--header-bg': '#800080',
+                    '--sidebar-bg': '#800080',
+                    '--chat-bg': '#800080',
+                    '--button-bg': '#6a0dad',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#800080',
+                    '--input-bg': '#6a0dad',
+                    '--avatar-bg': '#9370db'
+                },
+                'blue': {
+                    '--background': '#007bff',
+                    '--header-bg': '#0056b3',
+                    '--sidebar-bg': '#0056b3',
+                    '--chat-bg': '#0056b3',
+                    '--button-bg': '#007bff',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#0056b3',
+                    '--input-bg': '#007bff',
+                    '--avatar-bg': '#add8e6'
+                },
+                'green': {
+                    '--background': '#228b22',
+                    '--header-bg': '#228b22',
+                    '--sidebar-bg': '#228b22',
+                    '--chat-bg': '#228b22',
+                    '--button-bg': '#00ff00',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#228b22',
+                    '--input-bg': '#00ff00',
+                    '--avatar-bg': '#66cdaa'
+                },
+                'yellow': {
+                    '--background': '#ffd700',
+                    '--header-bg': '#ffd700',
+                    '--sidebar-bg': '#ffd700',
+                    '--chat-bg': '#ffd700',
+                    '--button-bg': '#ffeb3b',
+                    '--text-color': '#000000',
+                    '--border-color': '#ffd700',
+                    '--input-bg': '#ffffff',
+                    '--avatar-bg': '#ffd700'
+                },
+                'red': {
+                    '--background': '#ff0000',
+                    '--header-bg': '#ff0000',
+                    '--sidebar-bg': '#ff0000',
+                    '--chat-bg': '#ff0000',
+                    '--button-bg': '#ff6961',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#ff0000',
+                    '--input-bg': '#ff6961',
+                    '--avatar-bg': '#8b0a1a'
+                },
+                'orange': {
+                    '--background': '#ffa500',
+                    '--header-bg': '#ffa500',
+                    '--sidebar-bg': '#ffa500',
+                    '--chat-bg': '#ffa500',
+                    '--button-bg': '#ff8c00',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#ffa500',
+                    '--input-bg': '#ff8c00',
+                    '--avatar-bg': '#cd8500'
+                },
+                'pink': {
+                    '--background': '#ff69b4',
+                    '--header-bg': '#ff69b4',
+                    '--sidebar-bg': '#ff69b4',
+                    '--chat-bg': '#ff69b4',
+                    '--button-bg': '#ff1493',
+                    '--text-color': '#ffffff',
+                    '--border-color': '#ff69b4',
+                    '--input-bg': '#ff1493',
+                    '--avatar-bg': '#da70d6'
+                }
+            };
+
+            Object.assign(document.documentElement.style, themes[theme]);
+        });
+    </script>
+</body>
+
+</html>
